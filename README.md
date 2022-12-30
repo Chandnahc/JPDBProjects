@@ -1,10 +1,10 @@
-#Title: 
-##Project Management Form using JPDB
+# Title: 
+## Project Management Form using JPDB
 
-#Description: 
-##This is a Project management form created using html, bootstrap, javascript and JPDB. 
+# Description: 
+## This is a Project management form created using html, bootstrap, javascript and JPDB. 
 
-#Benefits of using JsonPowerDB
+# Benefits of using JsonPowerDB
 ```
 > Proprietary algorithm for High Performance CRUD operations. Multiple times faster than popular DBMS.
 > Serverless support for faster development - A UI developer can develop complete dynamic application.
@@ -20,6 +20,6 @@
 > Nimble, Simple to use, In Memory, Real-time DBMS.
 ```
 
-# Release History (release of your JsonPowerDB related code on Github)
+# Release History
 I :love: projects of JavaScript,
 Since, I knew about the new JPDB, I was always curious to know its working and deep dive in it. It all started in 2022.
