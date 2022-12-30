@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <title>Project Management</title>
+</head>
+
+<body>
+    <div class="container">
+        <br>
+        <div class="page-header text-center">
+            <h2>Project Management Mircro Task</h2>
+        </div>
+        <form id="projform" method="get">
+            <div class="form-group">
+                <label>Project-ID :</label>
+                <input type="number" id="projId" class="form-control" onchange="getProj()">
+            </div>
+            <br>
+            <div class="form-group">
+                <label>Project-Name :</label>
+                <input type="text" id="projName" class="form-control">
+            </div>
+            <br>
+            <div class="form-group">
+                <label>Assigned-To :</label>
+                <input type="text" id="assignTo" class="form-control">
+            </div>
+            <br>
+            <div class="form-group">
+                <label>Assignment-Date :</label>
+                <input type="date" id="assignDate" class="form-control">
+            </div>
+            <br>
+            <div class="form-group">
+                <label>Deadline :</label>
+                <input type="datetime-local" id="deadLine" class="form-control">
+            </div>
+            <br>
+            <div class="form-group text-center">
+                <button type="button" class="btn btn-lg btn-primary" id="save" onclick="saveData()" disabled>Save</button>
+                <button type="button" class="btn btn-lg btn-primary" id="update" onclick="updateData()"
+                    disabled>Update</button>
+                <button type="button" class="btn btn-lg btn-primary" id="reset" onclick="resetForm()"
+                    disabled>Reset</button>
+            </div>
+        </form>
+    </div>
+    <script type="text/javascript" src="https://login2explore.com/jpdb/resources/js/0.0.4/jpdb-commons.js"></script>
+    <script>       
+        
+        const connToken = '90938234|-31949273530510110|90952465';
+        const dbName = "COLLEGE-DB";
+        const relName = "PROJECT-TABLE";
+        const baseurl = "http://api.login2explore.com:5577";
+        const ManiendPoints = "/api/iml";
+        const RetrendPoints = "/api/irl";
+        
+        $('#projId').focus();
+        
+        function getProj() {
+            var projIdJsonObj = getProjIdJsonObj();
+            var getRequest = createGET_BY_KEYRequest(connToken, dbName, relName, projIdJsonObj);
+            jQuery.ajaxSetup({ async: false });
+            var resJsonObj = executeCommandAtGivenBaseUrl(getRequest, baseurl, RetrendPoints);
+            jQuery.ajaxSetup({ async: true });
+            if (resJsonObj.status === 400) {
+                $('#save').prop('disabled', false);
+                $('#reset').prop('disabled', false);
+                $('#projName').focus();
+            } else if (resJsonObj.status === 200) {
+                $('#projId').prop('disabled', true);
+                fillData(resJsonObj);
+                $('#update').prop('disabled', false);
+                $('#reset').prop('disabled', false);
+                $('#projName').focus();
+            }
+        }
+        function saveToLocalStorage(jsonObj) {
+            var lvData = JSON.parse(jsonObj.data);
+            localStorage.setItem('recno', lvData.rec_no);
+        }
+
+        function getProjIdJsonObj() {
+            var projId = $('#projId').val();
+            var jsonStr = {
+                ProjectID: projId
+            };
+            return JSON.stringify(jsonStr);
+        }
+
+        function fillData(jsonObj) {
+            saveToLocalStorage(jsonObj);
+            var record = JSON.parse(jsonObj.data).record;
+            $('#projName').val(record.ProjectName);
+            $('#assignTo').val(record.AssignedTo);
+            $('#assignDate').val(record.AssignedDate);
+            $('#deadLine').val(record.Deadline);
+        }
+
+
+        function resetForm() {
+            $('#projId').val("");
+            $('#projName').val("");
+            $('#assignTo').val("");
+            $('#assignDate').val("");
+            $('#deadLine').val("");
+            $('#projId').prop('disabled', false);
+            $('#save').prop('disabled', true);
+            $('#update').prop('disabled', true);
+            $('#reset').prop('disabled', true);
+            $('#projId').focus();
+        }
+
+
+        function validateData() {
+            var projId, projName, assignTo, assignDate, deadLine;
+            projId = $('#projId').val();
+            projName = $('#projName').val();
+            assignTo = $('#assignTo').val();
+            assignDate = $('#assignDate').val();
+            deadLine = $('#deadLine').val();
+
+            if (projId === "") {
+                alert('Project ID is missing');
+                $('#projId').focus();
+                return '';
+            }
+            if (projName === "") {
+                alert('Project Name is missing');
+                $('#projName').focus();
+                return '';
+            }
+            if (assignTo === "") {
+                alert('Assign-to field is empty');
+                $('#assignTo').focus();
+                return '';
+            }
+            if (assignDate === "") {
+                alert('Assign-date is empty');
+                $('#assignDate').focus();
+                return '';
+            }
+            if (deadLine === "") {
+                alert('Deadline is empty');
+                $('#deadLine').focus();
+                return '';
+            }
+
+            var jsonStrObj = {
+                ProjectID: projId,
+                ProjectName: projName,
+                AssignedTo: assignTo,
+                AssignedDate: assignDate,
+                Deadline: deadLine
+            };
+
+            return JSON.stringify(jsonStrObj);
+
+        }
+
+
+        function saveData() {
+            var jsonStrObj = validateData();
+            if (jsonStrObj === '') return '';
+            var putRequest = createPUTRequest(connToken, jsonStrObj, dbName, relName);
+            jQuery.ajaxSetup({ async: false });
+            var resJsonObj = executeCommandAtGivenBaseUrl(putRequest, baseurl, ManiendPoints);
+            jQuery.ajaxSetup({ async: true });
+            // console.log(resJsonObj);
+            resetForm();
+            $('#projId').focus();
+        }
+
+        function updateData() {
+            $('#update').prop('disabled', true);
+            Jsonobj = validateData();
+            var updateRequest = createUPDATERecordRequest(connToken, Jsonobj, dbName, relName, localStorage.getItem('recno'));
+            // console.log(updateRequest);
+            jQuery.ajaxSetup({ async: false });
+            var resJsonObj = executeCommandAtGivenBaseUrl(updateRequest, baseurl, ManiendPoints);
+            jQuery.ajaxSetup({ async: true });
+            // console.log(resJsonObj);
+            resetForm();
+            $('#projId').focus();
+        }
+    </script>
+</body>
+
+</html>
